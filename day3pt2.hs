@@ -40,12 +40,9 @@ findPriority = maybePriority
                . uniqueMemberItems
 
 findPriorities :: [(String, String, String)] -> Maybe [Int]
-findPriorities (x:xs) =
-    case findPriority x of 
-         Nothing -> Nothing
-         Just priority -> case findPriorities xs of
-                               Just result -> Just (priority:result)
-                               Nothing -> Nothing
+findPriorities (x:xs) = case findPriority x of 
+                             Nothing -> Nothing
+                             Just priority -> (priority:) <$> findPriorities xs
 findPriorities [] = Just []
 
 answer :: [String] -> Int
