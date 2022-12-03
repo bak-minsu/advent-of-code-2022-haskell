@@ -10,8 +10,8 @@ getFileLines f = do contents <- readFile f
 
 splitMembersHelper :: [(String,String,String)] -> [String] -> Maybe [(String, String, String)]
 splitMembersHelper l (x:y:z:t) = splitMembersHelper ((x,y,z):l) t
-splitMembersHelper l [] = Just l
-splitMembersHelper l _ = Nothing
+splitMembersHelper l []        = Just l
+splitMembersHelper l _         = Nothing
 
 splitMembers :: [String] -> Maybe [(String, String,String)]
 splitMembers = splitMembersHelper []
@@ -19,7 +19,7 @@ splitMembers = splitMembersHelper []
 priority :: Char -> Maybe Int
 priority c | ord c >= ord 'A' && ord c <= ord 'Z' = Just ((ord c - 64) + 26)
            | ord c >= ord 'a' && ord c <= ord 'z' = Just (ord c - 96)
-           | otherwise = Nothing
+           | otherwise                            = Nothing
 
 maybePriority :: Maybe Char -> Maybe Int
 maybePriority (Just x) = priority x
