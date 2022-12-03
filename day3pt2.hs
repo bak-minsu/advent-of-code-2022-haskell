@@ -8,13 +8,10 @@ getFileLines :: String -> IO [String]
 getFileLines f = do contents <- readFile f
                     return . lines $ contents
 
-splitMembersHelper :: [(String,String,String)] -> [String] -> Maybe [(String, String, String)]
-splitMembersHelper l (x:y:z:t) = splitMembersHelper ((x,y,z):l) t
-splitMembersHelper l []        = Just l
-splitMembersHelper l _         = Nothing
-
-splitMembers :: [String] -> Maybe [(String, String,String)]
-splitMembers = splitMembersHelper []
+splitMembers :: [String] -> Maybe [(String, String, String)]
+splitMembers (x:y:z:t) = ((x,y,z):) <$> splitMembers t
+splitMembers []        = Just []
+splitMembers _         = Nothing
 
 priority :: Char -> Maybe Int
 priority c | ord c >= ord 'A' && ord c <= ord 'Z' = Just ((ord c - 64) + 26)
@@ -42,25 +39,25 @@ findPriority = maybePriority
                . sortedGroupItems
                . uniqueMemberItems
 
-findPrioritiesHelper :: Maybe [Int] -> Maybe [(String, String, String)] -> Maybe [Int]
-findPrioritiesHelper (Just l) (Just (x:xs)) = 
+findPriorities :: [(String, String, String)] -> Maybe [Int]
+findPriorities (x:xs) =
     case findPriority x of 
-        Just priority -> findPrioritiesHelper (Just (priority:l)) (Just xs)
-        Nothing -> Nothing
-findPrioritiesHelper l (Just []) = l
-findPrioritiesHelper Nothing _   = Nothing
-findPrioritiesHelper _ Nothing   = Nothing 
+         Nothing -> Nothing
+         Just priority -> case findPriorities xs of
+                               Just result -> Just (priority:result)
+                               Nothing -> Nothing
+findPriorities [] = Just []
 
-findPriorities :: Maybe [(String, String, String)] -> Maybe [Int]
-findPriorities = findPrioritiesHelper (Just [])
-
-sumPriorities :: Maybe [Int] -> Maybe Int
-sumPriorities (Just l) = Just . sum $ l
-sumPriorities Nothing  = Nothing
+answer :: [String] -> Int
+answer xs = case splitMembers xs of
+                 Nothing -> error "could not split content into members"
+                 Just ys -> case findPriorities ys of
+                                 Nothing -> error "could not find priorities"
+                                 Just zs -> sum zs
 
 main :: IO ()
 main = do args <- getArgs
           case args of
                [filename] -> do content  <- getFileLines filename
-                                print . sumPriorities . findPriorities . splitMembers $ content
+                                print . answer $ content
                _          -> putStrLn "Usage: aoc2022 <filename>"
