@@ -25,15 +25,6 @@ maybePriority :: Maybe Char -> Maybe Int
 maybePriority (Just x) = priority x
 maybePriority Nothing  = Nothing
 
-maybeIntsHelper :: Maybe [Int] -> [Maybe Int] -> Maybe [Int]
-maybeIntsHelper (Just l) (Just x:xs) = maybeIntsHelper (Just (x:l)) xs
-maybeIntsHelper l []                 = l
-maybeIntsHelper Nothing _            = Nothing
-maybeIntsHelper _ (Nothing:xs)       = Nothing
-
-maybeInts :: [Maybe Int] -> Maybe [Int]
-maybeInts = maybeIntsHelper (Just [])
-
 uniqueMemberItems :: (String, String, String) -> (String, String, String)
 uniqueMemberItems (a, b, c) = (nub a, nub b, nub c)
 
@@ -45,13 +36,23 @@ findTripled (x:y:z:t) | x == y && y == z = Just x
                       | otherwise        = findTripled (y:z:t)
 findTripled _ = Nothing
 
-findPrioritiesHelper :: [Maybe Int] -> Maybe [(String, String, String)] -> Maybe [Int]
-findPrioritiesHelper l (Just (x:xs)) =  findPrioritiesHelper ((maybePriority . findTripled . sortedGroupItems . uniqueMemberItems $ x):l) (Just xs)
-findPrioritiesHelper l (Just [])     = maybeInts l
-findPrioritiesHelper l Nothing       = Nothing 
+findPriority :: (String, String, String) -> Maybe Int
+findPriority = maybePriority
+               . findTripled
+               . sortedGroupItems
+               . uniqueMemberItems
+
+findPrioritiesHelper :: Maybe [Int] -> Maybe [(String, String, String)] -> Maybe [Int]
+findPrioritiesHelper (Just l) (Just (x:xs)) = 
+    case findPriority x of 
+        Just priority -> findPrioritiesHelper (Just (priority:l)) (Just xs)
+        Nothing -> Nothing
+findPrioritiesHelper l (Just []) = l
+findPrioritiesHelper Nothing _   = Nothing
+findPrioritiesHelper _ Nothing   = Nothing 
 
 findPriorities :: Maybe [(String, String, String)] -> Maybe [Int]
-findPriorities = findPrioritiesHelper []
+findPriorities = findPrioritiesHelper (Just [])
 
 sumPriorities :: Maybe [Int] -> Maybe Int
 sumPriorities (Just l) = Just . sum $ l
