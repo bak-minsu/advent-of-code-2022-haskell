@@ -34,7 +34,7 @@ hasOverlap (Pair (Range x1 x2) (Range y1 y2)) | x1 < y1   = x2 >= y1
                                               | otherwise = False 
 
 countOverlap :: [Pair] -> Int
-countOverlap = length . filter (== True) . map hasOverlap
+countOverlap = length . filter hasOverlap
 
 debugOutput :: [String] -> String
 debugOutput c = unlines . zipWith (++) (map (show . hasOverlap) . convPairs $ c) $ (map show . convPairs $ c)
