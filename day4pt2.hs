@@ -17,9 +17,6 @@ convRange s = case splitOn "-" s of
                 [x, y] -> Range (convInt x) (convInt y)
                 _      -> error "could not convert string into range" 
 
-convRanges :: [String] -> [Range]
-convRanges = map convRange
-
 data Pair = Pair Range Range deriving (Show)
 
 convPair :: String -> Pair
@@ -36,8 +33,8 @@ hasOverlap (Pair (Range x1 x2) (Range y1 y2)) | x1 < y1   = x2 >= y1
                                               | x1 == y1  = True
                                               | otherwise = False 
 
-countSubsets :: [Pair] -> Int
-countSubsets = length . filter (== True) . map hasOverlap
+countOverlap :: [Pair] -> Int
+countOverlap = length . filter (== True) . map hasOverlap
 
 debugOutput :: [String] -> String
 debugOutput c = unlines . zipWith (++) (map (show . hasOverlap) . convPairs $ c) $ (map show . convPairs $ c)
@@ -46,5 +43,5 @@ main :: IO ()
 main = do args <- getArgs
           case args of
                [filename] -> do content  <- getFileLines filename
-                                print . countSubsets . convPairs $ content
+                                print . countOverlap . convPairs $ content
                _          -> putStrLn "Usage: aoc2022 <filename>"
