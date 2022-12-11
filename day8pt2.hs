@@ -71,5 +71,4 @@ main = do args <- getArgs
           case args of
                [filename] -> do content  <- getFileLines filename
                                 print . maxScore $ initForestPosition content
---print . initForestPosition $ content
                _          -> putStrLn "Usage: aoc2022 <filename>"
