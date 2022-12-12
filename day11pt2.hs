@@ -134,7 +134,7 @@ type Thrown = (Monkey, [(MonkeyID, Item)])
 throwItem :: (MonkeyID, Item) -> Thrown -> Thrown
 throwItem item (monkey, thrown) = (monkey, item:thrown)
 
-inspectAndThrow :: Monkey -> Int -> Thrown
+inspectAndThrow :: Monkey -> MonkeyLCM -> Thrown
 inspectAndThrow (Monkey id count [] op test true false) lcm           = (Monkey id count [] op test true false, [])
 inspectAndThrow (Monkey id count (item:items) op test true false) lcm | isDivisible newItem test = (true, newItem) `throwItem` inspectAndThrow (Monkey id (count+1) items op test true false) lcm
                                                                       | otherwise                = (false, newItem) `throwItem` inspectAndThrow (Monkey id (count+1) items op test true false) lcm
