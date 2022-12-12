@@ -142,23 +142,25 @@ catchItems :: MonkeyState -> Thrown -> MonkeyState
 catchItems state (monkey, [])                = updateMonkeyWithID state (monkeyID monkey) monkey
 catchItems state (monkey, (id, item):thrown) = updateMonkeyWithID state id (appendMonkeyItem item (state !! id)) `catchItems` (monkey, thrown)
 
-type InspectingMonkey = (MonkeyState, MonkeyID)
+type MonkeyLCM = Int
+
+type InspectingMonkey = (MonkeyState, MonkeyID, MonkeyLCM)
 
 initInspectingMonkey :: MonkeyState -> InspectingMonkey
-initInspectingMonkey state = (state, 0)
+initInspectingMonkey state = (state, 0, lcmMonkeys state)
 
 executeRound :: InspectingMonkey -> InspectingMonkey
-executeRound (state, id) | id < length state  = executeRound (catchItems state $ inspectAndThrow (state !! id) $ lcmMonkeys state, id + 1)
-                         | id == length state = (state, 0)
-                         | otherwise          = error ("out of bounds for round execution: " ++ show id)
+executeRound (state, id, lcm) | id < length state  = executeRound (catchItems state $ inspectAndThrow (state !! id) lcm, id + 1, lcm)
+                              | id == length state = (state, 0, lcm)
+                              | otherwise          = error ("out of bounds for round execution: " ++ show id)
 
 executeRounds :: Int -> InspectingMonkey -> InspectingMonkey
 executeRounds 0      inspect = inspect
 executeRounds rounds inspect = executeRounds (rounds - 1) $ executeRound inspect
 
 calculateLevel :: InspectingMonkey -> Int
-calculateLevel (state, _) = case topTwoInspectCounts state of
-                                 (first, second) -> first * second
+calculateLevel (state, _, _) = case topTwoInspectCounts state of
+                                    (first, second) -> first * second
 
 main :: IO ()
 main = do args <- getArgs
