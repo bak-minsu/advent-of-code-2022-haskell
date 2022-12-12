@@ -124,7 +124,9 @@ topTwoInspectCounts state = case reverse . sort . map monkeyInspectCount $ state
                                  (first:second:rest) -> (first, second)
                                  _                   -> error "there needs to be at least two monkeys in state"
 
-lcmMonkeys :: MonkeyState -> Int
+type MonkeyLCM = Int
+
+lcmMonkeys :: MonkeyState -> MonkeyLCM
 lcmMonkeys state = foldl lcm 1 $ map monkeyTest state
 
 type Thrown = (Monkey, [(MonkeyID, Item)])
@@ -141,8 +143,6 @@ inspectAndThrow (Monkey id count (item:items) op test true false) lcm | isDivisi
 catchItems :: MonkeyState -> Thrown -> MonkeyState
 catchItems state (monkey, [])                = updateMonkeyWithID state (monkeyID monkey) monkey
 catchItems state (monkey, (id, item):thrown) = updateMonkeyWithID state id (appendMonkeyItem item (state !! id)) `catchItems` (monkey, thrown)
-
-type MonkeyLCM = Int
 
 type InspectingMonkey = (MonkeyState, MonkeyID, MonkeyLCM)
 
