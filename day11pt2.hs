@@ -114,7 +114,7 @@ type MonkeyState = [Monkey]
 recordsToMonkeyState :: MonkeyRecords -> MonkeyState
 recordsToMonkeyState = map recordToMonkey
 
-updateMonkeyWithID :: MonkeyState -> Int -> Monkey -> MonkeyState
+updateMonkeyWithID :: MonkeyState -> MonkeyID -> Monkey -> MonkeyState
 updateMonkeyWithID state index monkey = case splitAt index state of
                                              (left, _:right) -> left ++ monkey:right
                                              _               -> error ("index out of bounds: " ++ show index)
